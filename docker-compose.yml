@@ -40,6 +40,11 @@ services:
       REDIS_HOST: redis
     ports:
       - "${API_PORT:-3000}:3000"
+    volumes:
+      # Shared with `worker`: the API writes uploaded attachments here and the worker reads them
+      # back during the parse stage. Without a shared volume each container sees its own empty
+      # directory and every attachment fails to parse.
+      - objectstore:/app/var/object-store
     depends_on:
       postgres:
         condition: service_healthy
@@ -59,6 +64,9 @@ services:
       SERVICE_NAME: worker
       DATABASE_HOST: postgres
       REDIS_HOST: redis
+    volumes:
+      # Same volume as `api`, mounted at the same path so `OBJECT_STORE_URL` resolves identically.
+      - objectstore:/app/var/object-store
     depends_on:
       postgres:
         condition: service_healthy
@@ -80,3 +88,4 @@ services:
 
 volumes:
   pgdata:
+  objectstore:

@@ -16,3 +16,7 @@ overrides:
   picomatch: ">=4.0.4"    # GHSA-5j98-mcp5-4vw2 (via @nestjs/cli, devDep)
   tmp: ">=0.2.6"          # GHSA-ph9p-34f9-6g65 (via @nestjs/cli, devDep)
   form-data: ">=4.0.6"    # GHSA-hmw2-7cc7-3qxx (via axios in client)
+  # Held to the 4.x line: @nestjs/swagger expects v4, and >=5 is a breaking major.
+  js-yaml: ">=4.3.0 <5.0.0"  # GHSA-52cp-r559-cp3m (via @nestjs/swagger, @nestjs/cli)
+  shell-quote: ">=1.9.0"     # GHSA-395f-4hp3-45gv (via concurrently, devDep); 1.8.5 was never published
+  brace-expansion: ">=5.0.7" # GHSA-v6h2-p8h4-qcjw (via @nestjs/cli, minimatch)
