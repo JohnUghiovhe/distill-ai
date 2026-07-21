@@ -1,6 +1,5 @@
 node_modules/
 dist/
-.env
 *.js.map
 
 # local filesystem object store (attachments/quotes written by the object-store adapter)
@@ -14,3 +13,6 @@ plan.md
 deploy-plan.md
 learning.md
 branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
+config.bat

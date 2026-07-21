@@ -1,5 +1,4 @@
 import { extname } from 'node:path';
-import { PDFParse } from 'pdf-parse';
 import * as SYS_MSG from '@constants/system-messages';
 
 /**
@@ -36,8 +35,11 @@ export async function extractText(bytes: Buffer, filename: string): Promise<stri
 }
 
 /** Run pdf-parse over the buffer and return the concatenated document text, always releasing the
- * parser's resources afterwards. */
+ * parser's resources afterwards. Imported lazily: `pdf-parse` loads a native canvas binding at
+ * require time, so a top-level import lets a PDF-only dependency failure crash the whole worker and
+ * take `.txt`/`.csv` parsing down with it. */
 async function extractPdfText(bytes: Buffer): Promise<string> {
+  const { PDFParse } = await import('pdf-parse');
   const parser = new PDFParse({ data: bytes });
   try {
     const result = await parser.getText();

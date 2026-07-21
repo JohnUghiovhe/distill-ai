@@ -6,6 +6,9 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 import prettierPlugin from 'eslint-plugin-prettier/recommended'
 import storybook from 'eslint-plugin-storybook'
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
 
 export default defineConfig([
   globalIgnores(['dist', 'storybook-static']),
@@ -23,4 +26,4 @@ export default defineConfig([
     },
   },
   ...storybook.configs['flat/recommended'],
-])
+]);
