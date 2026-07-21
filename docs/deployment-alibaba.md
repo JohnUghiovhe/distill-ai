@@ -1,11 +1,44 @@
 # Distill.ai Deployment Strategy: Alibaba Cloud
 
-Research and recommended plan for deploying the Distill.ai monorepo to Alibaba Cloud for the
+Deployment plan and current live state for the Distill.ai monorepo on Alibaba Cloud, built for the
 Qwen Cloud hackathon. Scoped to the hackathon reality: a real Alibaba Cloud deployment by the
 **July 9, 2026** deadline, lean cost, fast to stand up, co-located in **Singapore
 (ap-southeast-1)** to sit next to our Qwen Cloud (Singapore) endpoint.
 
-> Status: strategy, pending team sign-off on the compute target. Nothing here is provisioned yet.
+> **Status: LIVE on Alibaba Cloud.** Phase 1 is deployed and serving traffic. The Phase 2 SAE
+> migration described below remains the forward plan and is not provisioned yet.
+
+## Live deployment
+
+| Item | Value |
+| --- | --- |
+| Public URL | <https://distill-ai.duckdns.org> |
+| Health check | <https://distill-ai.duckdns.org/api/v1/health> |
+| Compute | Alibaba Cloud ECS, `ecs.e-c1m2.large` (2 vCPU / 4 GB), Ubuntu 22.04 |
+| Region | `ap-southeast-1` (Singapore), Zone B |
+| Runtime | Full stack via `docker-compose`: api, worker, client, postgres (pgvector), redis |
+| TLS | Caddy 2 terminating HTTPS with an automatic Let's Encrypt certificate |
+| LLM | Qwen-Plus via Alibaba Cloud Model Studio |
+| Embeddings | `text-embedding-v4`, 1024 dimensions, via Alibaba Cloud Model Studio |
+| Model Studio endpoint | `https://dashscope-intl.aliyuncs.com/compatible-mode/v1` (OpenAI compatible) |
+
+Both the LLM and the embedding model are served by Alibaba Cloud Model Studio over its
+OpenAI-compatible endpoint, configured through `LLM_BASE_URL` and `EMBEDDINGS_BASE_URL`
+(see `src/modules/llm/llm.provider.ts` and `.env.example`).
+
+### Hardening applied to the live box
+
+- Only ports `80` and `443` are open to the internet. Caddy owns both.
+- The raw API port is closed externally. The API is reachable only through the client proxy.
+- SSH on port `22` is restricted to a single operator IP, not `0.0.0.0/0`.
+- Secrets live in a `chmod 600` `.env` on the instance and are never committed.
+
+### Verified end-to-end in production
+
+Real RFQs were submitted through both the UI and the API against the live deployment. The
+`tool_calls` audit table confirms live Qwen traffic (`extract_request` and `search_catalog`
+tool calls returning `ok`), so extraction, classification, and catalog matching are genuinely
+running on Model Studio in production rather than on fixtures.
 
 ## Stack being deployed
 
